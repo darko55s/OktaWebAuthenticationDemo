@@ -1,4 +1,5 @@
 import UIKit
+import BrowserSignin
 
 class AuthViewController: UIViewController {
     private let statusLabel = UILabel()
@@ -17,9 +18,17 @@ class AuthViewController: UIViewController {
         button.tintColor = .systemBlue
         return button
     }()
+    
     private let userInfoButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("👤 User Info", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 14)
+        return button
+    }()
+    
+    private let messageButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("🎁 Get Message", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14)
         return button
     }()
@@ -36,6 +45,16 @@ class AuthViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("Will appear")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("will dissapear")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -49,6 +68,7 @@ class AuthViewController: UIViewController {
         refreshButton.addTarget(self, action: #selector(refreshTapped), for: .touchUpInside)
         infoButton.addTarget(self, action: #selector(infoTapped), for: .touchUpInside)
         userInfoButton.addTarget(self, action: #selector(userInfoTapped), for: .touchUpInside)
+        messageButton.addTarget(self, action: #selector(fetchMessageTapped), for: .touchUpInside)
     }
     
     private func setupUI() {
@@ -67,7 +87,17 @@ class AuthViewController: UIViewController {
         
         activityIndicator.hidesWhenStopped = true
 
-        let stack = UIStackView(arrangedSubviews: [statusLabel, tokenLabel, authButton, refreshButton, infoButton, userInfoButton, activityIndicator])
+        let stack = UIStackView(arrangedSubviews: [
+            statusLabel,
+            tokenLabel,
+            authButton,
+            refreshButton,
+            infoButton,
+            userInfoButton,
+            messageButton,
+            activityIndicator
+        ])
+        
         stack.axis = .vertical
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -166,5 +196,22 @@ class AuthViewController: UIViewController {
                 showError(error)
             }
         }
+    }
+    
+    @objc private func fetchMessageTapped() {
+        setLoading(true)
+
+        Task {
+            defer { setLoading(false) }
+            
+            let message = await authService.fetchMessageFromBackend()
+            showMessage(message)
+        }
+    }
+    
+    private func showMessage(_ text: String) {
+        let alert = UIAlertController(title: "🎁 Message from Server", message: text, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }

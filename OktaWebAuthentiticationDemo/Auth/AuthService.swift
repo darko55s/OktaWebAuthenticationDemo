@@ -1,5 +1,5 @@
 import UIKit
-import WebAuthenticationUI
+import BrowserSignin
 
 protocol AuthServiceProtocol {
     var isAuthenticated: Bool { get }
@@ -11,6 +11,8 @@ protocol AuthServiceProtocol {
     func signIn(from window: UIWindow?) async throws
     func signOut(from window: UIWindow?) async throws
     func refreshTokenIfNeeded() async throws
+    
+    func fetchMessageFromBackend() async -> String
 }
 
 final class AuthService: AuthServiceProtocol {
@@ -20,26 +22,53 @@ final class AuthService: AuthServiceProtocol {
     }
     
     var idToken: String? {
-        return Credential.default?.token.idToken?.rawValue
+        return Credential.default?.token.accessToken
     }
     
+    @MainActor
     func signIn(from window: UIWindow?) async throws {
-        WebAuthentication.shared?.ephemeralSession = true
-        let tokens = try await WebAuthentication.shared?.signIn(from: window)
+        BrowserSignin.shared?.ephemeralSession = true
+        let tokens = try await BrowserSignin.shared?.signIn(from: window)
         if let tokens {
             _ = try? Credential.store(tokens)
         }
     }
     
+    @MainActor
     func signOut(from window: UIWindow?) async throws {
         guard let credential = Credential.default else { return }
-        try await WebAuthentication.shared?.signOut(from: window, token: credential.token)
+        try await BrowserSignin.shared?.signOut(from: window, token: credential.token)
         try? credential.remove()
     }
     
     func refreshTokenIfNeeded() async throws {
         guard let credential = Credential.default else { return }
         try await credential.refresh()
+    }
+    
+    @MainActor
+    func fetchMessageFromBackend() async -> String {
+        guard let credential = Credential.default else {
+            return "Not authenticated."
+        }
+
+        var request = URLRequest(url: URL(string: "http://localhost:8000/api/messages")!)
+        request.httpMethod = "GET"
+
+        await credential.authorize(&request)
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let decoder = JSONDecoder()
+            let response = try decoder.decode(MessageResponse.self, from: data)
+            if let randomMessage = response.messages.randomElement() {
+                return "\(randomMessage.text)"
+            } else {
+                return "No messages found."
+            }
+        } catch {
+            return "Error fetching message: \(error.localizedDescription)"
+        }
     }
 }
 

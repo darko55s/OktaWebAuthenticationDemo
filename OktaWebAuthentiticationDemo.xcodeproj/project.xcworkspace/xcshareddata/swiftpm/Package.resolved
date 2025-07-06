@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/okta/okta-mobile-swift.git",
       "state" : {
-        "revision" : "f46413cf3b139b92c543ca8af2a8f88cd2f33bd8",
-        "version" : "1.8.3"
+        "revision" : "94acba67c4e3b4146985090c11cb9b8de93bcf00",
+        "version" : "2.0.0"
       }
     }
   ],

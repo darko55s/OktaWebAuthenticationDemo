@@ -9,7 +9,7 @@
 	<key>clientId</key>
 	<string>0oasa8v2ijvCuHd3T697</string>
 	<key>issuer</key>
-	<string>https://trial-6040175.okta.com</string>
+	<string>https://trial-6040175.okta.com/oauth2/default</string>
 	<key>logoutRedirectUri</key>
 	<string>com.okta.trial-6040175:/logout</string>
 </dict>
