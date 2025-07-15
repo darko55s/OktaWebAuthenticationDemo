@@ -2,10 +2,10 @@ import UIKit
 
 class TokenInfoViewController: UIViewController {
 
-    private let tokenData: [String: String]
+    private let tokenInfo: TokenInfo
 
-    init(tokenData: [String: String]) {
-        self.tokenData = tokenData
+    init(tokenInfo: TokenInfo) {
+        self.tokenInfo = tokenInfo
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -23,10 +23,7 @@ class TokenInfoViewController: UIViewController {
         textView.isEditable = false
         textView.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
 
-        textView.text = tokenData
-            .map { "\($0): \($1)" }
-            .sorted()
-            .joined(separator: "\n")
+        textView.text = tokenInfo.toString()
 
         view.addSubview(textView)
         NSLayoutConstraint.activate([
@@ -37,3 +34,4 @@ class TokenInfoViewController: UIViewController {
         ])
     }
 }
+

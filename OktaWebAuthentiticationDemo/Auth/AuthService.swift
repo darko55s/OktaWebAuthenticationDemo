@@ -5,7 +5,7 @@ protocol AuthServiceProtocol {
     var isAuthenticated: Bool { get }
     var idToken: String? { get }
     
-    func tokenInfo() -> [String: String]
+    func tokenInfo() -> TokenInfo?
     func userInfo() async throws -> [String: String]
 
     func signIn(from window: UIWindow?) async throws
@@ -73,30 +73,12 @@ final class AuthService: AuthServiceProtocol {
 }
 
 extension AuthService {
-    func tokenInfo() -> [String: String] {
+    func tokenInfo() -> TokenInfo? {
         guard let idToken = Credential.default?.token.idToken else {
-            return ["Status": "No token available"]
+            return nil
         }
         
-        var info: [String: String] = [
-            "ID Token": idToken.rawValue,
-            "Token Issuer": idToken.issuer ?? "No Issuer",
-            "Preferred Username": idToken.preferredUsername ?? "No preferred_username"
-        ]
-        
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .medium
-        
-        if let authTime = idToken.authTime {
-            info["Auth time"] = formatter.string(from: authTime)
-        }
-        
-        if let issuedAt = idToken.issuedAt {
-            info["Issued at"] = formatter.string(from: issuedAt)
-        }
-        
-        return info
+        return TokenInfo(idToken: idToken)
     }
 }
 

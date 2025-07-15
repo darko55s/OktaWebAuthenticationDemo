@@ -14,12 +14,12 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            if viewModel.authService.isAuthenticated {
+            if viewModel.authService.isAuthenticated,
+               let tokenInfo = viewModel.authService.tokenInfo() {
                 // Display user info from token
-                let tokenInfo = viewModel.authService.tokenInfo()
-                Text("Hello, \(tokenInfo["Preferred Username"] ?? "User")!")
+                Text("Hello, \(tokenInfo.preferredUsername)!")
                     .font(.headline)
-                Text("ID Token: \(tokenInfo["ID Token"] ?? "-")")
+                Text("ID Token: \(tokenInfo.idToken)")
                     .font(.caption)
 
                 Button("Logout") {

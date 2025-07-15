@@ -180,8 +180,8 @@ class AuthViewController: UIViewController {
     }
     
     @objc private func infoTapped() {
-        let info = authService.tokenInfo()
-        let vc = TokenInfoViewController(tokenData: info)
+        guard let info = authService.tokenInfo() else { return }
+        let vc = TokenInfoViewController(tokenInfo: info)
         present(vc, animated: true)
     }
     
