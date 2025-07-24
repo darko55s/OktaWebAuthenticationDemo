@@ -8,11 +8,7 @@ struct TokenInfo {
     var authTime: String?
     var issuedAt: String?
     
-    init?(idToken: JWT) {
-        guard let idToken = Credential.default?.token.idToken else {
-            return nil
-        }
-        
+    init(idToken: JWT) {
         self.idToken = idToken.rawValue
         self.tokenIssuer = idToken.issuer ?? "No Issuer found"
         self.preferredUsername = idToken.preferredUsername ?? "No preferred_username found"
